@@ -1,21 +1,18 @@
-[
-  {
-    "name": "CYTEK - 10 YEARS ANNIVERSARY",
-    "description": "Lorem ipsum",
-    "startDate": "",
-    "endDate": "",
-    "image": "",
-    "url": "",
-    "location": {
-      "name": "",
-      "address": "",
-      "url": ""
-    ***REMOVED***,
-    "prices": [
-      { "price": 10, "type":"Non-cotisant", "status": "Disponible" ***REMOVED***,
-      { "price": 5, "type:": "Cotisant", "status": "Disponible" ***REMOVED***
-    ],
-    "attending": [
-    ]
-  ***REMOVED***
-]
+{
+  "name": "CYTEK - 10 YEARS ANNIVERSARY",
+  "description": "Lorem ipsum",
+  "startDate": "",
+  "endDate": "",
+  "image": "",
+  "url": "",
+  "location": {
+    "name": "",
+    "address": "",
+    "url": ""
+  ***REMOVED***,
+  "prices": [
+    { "price": 10, "type": "Non-cotisant", "status": "Disponible" ***REMOVED***,
+    { "price": 5, "type:": "Cotisant", "status": "Disponible" ***REMOVED***
+  ],
+  "attending": []
+***REMOVED***
