@@ -43,19 +43,27 @@ function registerCommands(bot) {
 
 function registerActions(bot) {
   bot.action(/^goRave-(\d+)$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    commandGuard(
-      ctx,
-      async () => await updateRaveListStatus(ctx, ctx.match[1])
 ***REMOVED***
+      await ctx.answerCbQuery();
+      commandGuard(
+        ctx,
+        async () => await updateRaveListStatus(ctx, ctx.match[1])
+  ***REMOVED***
+    ***REMOVED*** catch (error) {
+      console.log(error);
+    ***REMOVED***
   ***REMOVED***);
   bot.action(/^nextRave-(\d+)$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    commandGuard(ctx, async () => {
-      if (ctx.match[1] != nextRaveIndex(ctx.match[1])) {
-        await replyWithNextRaveInList(ctx, getRaveIndex());
-      ***REMOVED***
-    ***REMOVED***);
+***REMOVED***
+      await ctx.answerCbQuery();
+      commandGuard(ctx, async () => {
+        if (ctx.match[1] != nextRaveIndex(ctx.match[1])) {
+          await replyWithNextRaveInList(ctx, getRaveIndex());
+        ***REMOVED***
+      ***REMOVED***);
+    ***REMOVED*** catch (error) {
+      console.log(error);
+    ***REMOVED***
   ***REMOVED***);
 ***REMOVED***
 
