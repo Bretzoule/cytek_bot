@@ -43,19 +43,27 @@ function registerCommands(bot) {
 
 function registerActions(bot) {
   bot.action(/^goRave-(\d+)$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    commandGuard(
-      ctx,
-      async () => await updateRaveListStatus(ctx, ctx.match[1])
-    );
+    try {
+      await ctx.answerCbQuery();
+      commandGuard(
+        ctx,
+        async () => await updateRaveListStatus(ctx, ctx.match[1])
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
   bot.action(/^nextRave-(\d+)$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    commandGuard(ctx, async () => {
-      if (ctx.match[1] != nextRaveIndex(ctx.match[1])) {
-        await replyWithNextRaveInList(ctx, getRaveIndex());
-      }
-    });
+    try {
+      await ctx.answerCbQuery();
+      commandGuard(ctx, async () => {
+        if (ctx.match[1] != nextRaveIndex(ctx.match[1])) {
+          await replyWithNextRaveInList(ctx, getRaveIndex());
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   });
 }
 
