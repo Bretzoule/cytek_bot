@@ -6,6 +6,8 @@ const {
   replyWithUpdatedRaveList,
   replyWithNextRaveInList,
   updateRaveListStatus,
+  replyWithProut,
+  replyWithUpdatedProutList,
   updateCYTekStatus,
 ***REMOVED*** = require("./replies");
 const {
@@ -42,6 +44,14 @@ function registerCommands(bot) {
   );
   bot.command("cytek", (ctx) =>
     commandGuard(ctx, () => replyWithNextCYTEK(ctx))
+  );
+  bot.command("prout", (ctx) => commandGuard(ctx, () => replyWithProut(ctx)));
+  bot.command("addProut", (ctx) =>
+    commandGuard(
+      ctx,
+      () => replyWithUpdatedProutList(ctx),
+      (adminRequired = true)
+    )
   );
 ***REMOVED***
 

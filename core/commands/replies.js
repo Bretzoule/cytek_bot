@@ -7,6 +7,11 @@ const {
   updateRaveContent,
   getRaveIndex,
 ***REMOVED*** = require("./raveCommands/ravePlanner");
+const {
+  getProutsList,
+  reloadProutsList,
+  updateProutList
+***REMOVED*** = require("./proutCommands/proutList");
 const { Input, Markup ***REMOVED*** = require("telegraf");
 const {
   getCYTek,
@@ -14,6 +19,45 @@ const {
   writeToCYTekFile,
 ***REMOVED*** = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
+
+async function hiddenReplyWithProutList(bot) {
+  if (getProutsList().length == 0) {
+    await reloadProutsList(bot);
+  ***REMOVED***
+  console.log(
+    "Liste des prouts disponibles:\n" +
+      getProutsList()
+        .map((prout) => prout.path)
+        .join("\n")
+  );
+***REMOVED***
+
+async function replyWithUpdatedProutList(ctx) {
+  try {
+    await updateProutList(ctx);
+    ctx.reply("Merci pour ce nouveau prout !");
+  ***REMOVED*** catch (err) {
+    console.log(err);
+  ***REMOVED***
+***REMOVED***
+
+async function replyWithProut(ctx) {
+  if (getProutsList().length == 0) return;
+  try {
+    let proutSample =
+      getProutsList()[Math.floor(Math.random() * getProutsList().length)];
+    let audio = Input.fromLocalFile(proutSample.path);
+    await ctx.replyWithAudio(audio, {
+      caption: `
+Prouté par : ${proutSample.owner***REMOVED***, le ${new Date(
+        proutSample.date * 1000
+      ).toLocaleString("FR-fr")***REMOVED***`,
+    ***REMOVED***);
+  ***REMOVED*** catch (error) {
+    console.log(error);
+    ctx.reply("Je ne peux pas envoyer de prout pour le moment.");
+  ***REMOVED***
+***REMOVED***
 
 async function hiddenReplyWithRaveList(bot) {
   if (getRaveList().length == 0) {
@@ -309,4 +353,7 @@ exports.replyWithNextCYTEK = replyWithNextCYTEK;
 exports.replyWithNextRaveInList = replyWithNextRaveInList;
 exports.replyWithNextCYTEK = replyWithNextCYTEK;
 exports.updateCYTekStatus = updateCYTekStatus;
-exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks
+exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks;
+exports.replyWithProut = replyWithProut;
+exports.replyWithUpdatedProutList = replyWithUpdatedProutList;
+exports.hiddenReplyWithProutList = hiddenReplyWithProutList;

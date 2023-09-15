@@ -8,6 +8,7 @@ const { registerRoutines ***REMOVED*** = require("./core/utils/botRoutines");
 const {
   hiddenReplyWithRaveList,
   hiddenReplyWithCYTeks,
+  hiddenReplyWithProutList,
 ***REMOVED*** = require("./core/commands/replies");
 require("dotenv").config();
 
@@ -21,6 +22,7 @@ axios
   .then(async (_) => {
     // Init different lists
     await hiddenReplyWithRaveList(bot);
+    await hiddenReplyWithProutList(bot)
     await hiddenReplyWithCYTeks();
     // Register commands
     registerCommands(bot);
