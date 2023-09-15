@@ -8,6 +8,11 @@ const {
   getRaveIndex,
 ***REMOVED*** = require("./raveCommands/ravePlanner");
 const { Input, Markup ***REMOVED*** = require("telegraf");
+const {
+  getCYTek,
+  fetchCYTekContent,
+  writeToCYTekFile,
+***REMOVED*** = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
 
 async function hiddenReplyWithRaveList(bot) {
@@ -22,6 +27,13 @@ async function hiddenReplyWithRaveList(bot) {
   );
 ***REMOVED***
 
+async function hiddenReplyWithCYTeks() {
+  if (getCYTek().name == "") {
+    await fetchCYTekContent();
+  ***REMOVED***
+  console.log("CYTek prévue :\n" + getCYTek().name);
+***REMOVED***
+
 async function replyWithForcedRaveUpdateStatus(ctx) {
   try {
     await updateRaveContent();
@@ -29,10 +41,6 @@ async function replyWithForcedRaveUpdateStatus(ctx) {
   ***REMOVED*** catch (err) {
     console.log(err);
   ***REMOVED***
-***REMOVED***
-
-async function replyWithNextCYTEK(ctx) {
-  return null;
 ***REMOVED***
 
 async function replyWithNextRaveInList(ctx, raveKey = undefined) {
@@ -99,7 +107,7 @@ async function updateRaveListStatus(ctx, raveIndex) {
       ***REMOVED***);
     ***REMOVED***
     await writeToRaveFile(ctx);
-    ctx.editMessageCaption(
+    await ctx.editMessageCaption(
       `
 *${rave.name***REMOVED****
 Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${
@@ -209,6 +217,88 @@ async function replyWithUpdatedRaveList(ctx, remove = false) {
   ***REMOVED***
 ***REMOVED***
 
+async function updateCYTekStatus(ctx) {
+  try {
+    let cytek = getCYTek();
+    let attender = cytek.attending.find(
+      (attender) => attender.id == ctx.from.id
+***REMOVED***
+    if (attender != null) {
+      cytek.attending.splice(cytek.attending.indexOf(attender), 1);
+    ***REMOVED*** else {
+      ctx.answerCbQuery(`Hate de te voir à la rave ${ctx.from.first_name***REMOVED***`);
+      cytek.attending.push({
+        id: ctx.from.id,
+        first_name: ctx.from.first_name,
+      ***REMOVED***);
+    ***REMOVED***
+    await writeToCYTekFile(ctx);
+    await ctx.editMessageCaption(
+      `
+*${cytek.name***REMOVED****
+CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")***REMOVED****
+${cytek.description***REMOVED***
+Billeterie dispooo :
+${cytek.prices
+  .map(
+    (priceDetails) =>
+      `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
+  )
+  .join("\n")***REMOVED***
+Gens chauds : 
+${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
+      {
+        parse_mode: "Markdown",
+        ...Markup.inlineKeyboard([
+          Markup.button.url("🔗", cytek.url),
+          Markup.button.url("📍", cytek.location.url),
+          Markup.button.callback("✅/⛔", `goCYTek`),
+        ]).resize(),
+      ***REMOVED***
+***REMOVED***
+  ***REMOVED*** catch (error) {
+    console.log(error);
+  ***REMOVED***
+***REMOVED***
+
+async function replyWithNextCYTEK(ctx) {
+  if (getCYTek().name == "") {
+    await fetchCYTekContent();
+    console.log("Reloaded CY TEK content");
+    if (getCYTek().name == "") {
+      ctx.reply("Aucune CYTek prévue pour le moment.");
+      return;
+    ***REMOVED***
+  ***REMOVED***
+  let cytek = getCYTek();
+  try {
+    await ctx.replyWithPhoto(Input.fromLocalFile(cytek.image), {
+      caption: `
+*${cytek.name***REMOVED****
+CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")***REMOVED****
+${cytek.description***REMOVED***
+Billeterie dispooo :
+${cytek.prices
+  .map(
+    (priceDetails) =>
+      `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
+  )
+  .join("\n")***REMOVED***
+Gens chauds : 
+${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
+      parse_mode: "Markdown",
+      ...Markup.inlineKeyboard([
+        Markup.button.url("🔗", cytek.url),
+        Markup.button.url("📍", cytek.location.url),
+        Markup.button.callback("✅/⛔", `goCYTek`),
+      ]).resize(),
+    ***REMOVED***);
+  ***REMOVED*** catch (error) {
+    console.log(error);
+    ctx.reply("Je ne peux pas envoyer de rave pour le moment.");
+  ***REMOVED***
+***REMOVED***
+
 exports.hiddenReplyWithRaveList = hiddenReplyWithRaveList;
 exports.replyWithRaveList = replyWithRaveList;
 exports.replyWithUpdatedRaveList = replyWithUpdatedRaveList;
@@ -217,3 +307,6 @@ exports.replyWithForcedRaveUpdateStatus = replyWithForcedRaveUpdateStatus;
 exports.replyWithCotiz = replyWithCotiz;
 exports.replyWithNextCYTEK = replyWithNextCYTEK;
 exports.replyWithNextRaveInList = replyWithNextRaveInList;
+exports.replyWithNextCYTEK = replyWithNextCYTEK;
+exports.updateCYTekStatus = updateCYTekStatus;
+exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks
