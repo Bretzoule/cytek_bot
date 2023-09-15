@@ -130,11 +130,12 @@ dist
 .pnp.*
 
 # Personnal 
-misc/audio/automatic/*
+misc/audio/*
 misc/video/*
 misc/images/*.jpg
 misc/images/ash/*
 misc/images/cytek/*
 core/utils/allowedList.json
+core/commands/proutCommands/proutList.json
 core/commands/raveCommands/ravePlanner.json
 core/commands/cytekCommands/cytekContent.json
