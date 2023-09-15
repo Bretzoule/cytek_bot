@@ -27,7 +27,6 @@ async function reloadRaveList() {
         console.log("Error while reading ravePlanner.json");
         console.log(error);
     }
-
 }
 
 async function writeToRaveFile() {

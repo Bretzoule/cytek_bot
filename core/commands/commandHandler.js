@@ -6,6 +6,7 @@ const {
   replyWithUpdatedRaveList,
   replyWithNextRaveInList,
   updateRaveListStatus,
+  updateCYTekStatus,
 } = require("./replies");
 const {
   commandGuard,
@@ -39,6 +40,9 @@ function registerCommands(bot) {
       (adminRequired = true)
     )
   );
+  bot.command("cytek", (ctx) =>
+    commandGuard(ctx, () => replyWithNextCYTEK(ctx))
+  );
 }
 
 function registerActions(bot) {
@@ -49,6 +53,14 @@ function registerActions(bot) {
         ctx,
         async () => await updateRaveListStatus(ctx, ctx.match[1])
       );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  bot.action("goCYTek", async (ctx) => {
+    try {
+      await ctx.answerCbQuery();
+      commandGuard(ctx, async () => await updateCYTekStatus(ctx));
     } catch (error) {
       console.log(error);
     }

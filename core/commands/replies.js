@@ -8,6 +8,11 @@ const {
   getRaveIndex,
 } = require("./raveCommands/ravePlanner");
 const { Input, Markup } = require("telegraf");
+const {
+  getCYTek,
+  fetchCYTekContent,
+  writeToCYTekFile,
+} = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
 
 async function hiddenReplyWithRaveList(bot) {
@@ -22,6 +27,13 @@ async function hiddenReplyWithRaveList(bot) {
   );
 }
 
+async function hiddenReplyWithCYTeks() {
+  if (getCYTek().name == "") {
+    await fetchCYTekContent();
+  }
+  console.log("CYTek prévue :\n" + getCYTek().name);
+}
+
 async function replyWithForcedRaveUpdateStatus(ctx) {
   try {
     await updateRaveContent();
@@ -29,10 +41,6 @@ async function replyWithForcedRaveUpdateStatus(ctx) {
   } catch (err) {
     console.log(err);
   }
-}
-
-async function replyWithNextCYTEK(ctx) {
-  return null;
 }
 
 async function replyWithNextRaveInList(ctx, raveKey = undefined) {
@@ -99,7 +107,7 @@ async function updateRaveListStatus(ctx, raveIndex) {
       });
     }
     await writeToRaveFile(ctx);
-    ctx.editMessageCaption(
+    await ctx.editMessageCaption(
       `
 *${rave.name}*
 Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${
@@ -209,6 +217,88 @@ async function replyWithUpdatedRaveList(ctx, remove = false) {
   }
 }
 
+async function updateCYTekStatus(ctx) {
+  try {
+    let cytek = getCYTek();
+    let attender = cytek.attending.find(
+      (attender) => attender.id == ctx.from.id
+    );
+    if (attender != null) {
+      cytek.attending.splice(cytek.attending.indexOf(attender), 1);
+    } else {
+      ctx.answerCbQuery(`Hate de te voir à la rave ${ctx.from.first_name}`);
+      cytek.attending.push({
+        id: ctx.from.id,
+        first_name: ctx.from.first_name,
+      });
+    }
+    await writeToCYTekFile(ctx);
+    await ctx.editMessageCaption(
+      `
+*${cytek.name}*
+CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")}*
+${cytek.description}
+Billeterie dispooo :
+${cytek.prices
+  .map(
+    (priceDetails) =>
+      `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
+  )
+  .join("\n")}
+Gens chauds : 
+${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
+      {
+        parse_mode: "Markdown",
+        ...Markup.inlineKeyboard([
+          Markup.button.url("🔗", cytek.url),
+          Markup.button.url("📍", cytek.location.url),
+          Markup.button.callback("✅/⛔", `goCYTek`),
+        ]).resize(),
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function replyWithNextCYTEK(ctx) {
+  if (getCYTek().name == "") {
+    await fetchCYTekContent();
+    console.log("Reloaded CY TEK content");
+    if (getCYTek().name == "") {
+      ctx.reply("Aucune CYTek prévue pour le moment.");
+      return;
+    }
+  }
+  let cytek = getCYTek();
+  try {
+    await ctx.replyWithPhoto(Input.fromLocalFile(cytek.image), {
+      caption: `
+*${cytek.name}*
+CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")}*
+${cytek.description}
+Billeterie dispooo :
+${cytek.prices
+  .map(
+    (priceDetails) =>
+      `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
+  )
+  .join("\n")}
+Gens chauds : 
+${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
+      parse_mode: "Markdown",
+      ...Markup.inlineKeyboard([
+        Markup.button.url("🔗", cytek.url),
+        Markup.button.url("📍", cytek.location.url),
+        Markup.button.callback("✅/⛔", `goCYTek`),
+      ]).resize(),
+    });
+  } catch (error) {
+    console.log(error);
+    ctx.reply("Je ne peux pas envoyer de rave pour le moment.");
+  }
+}
+
 exports.hiddenReplyWithRaveList = hiddenReplyWithRaveList;
 exports.replyWithRaveList = replyWithRaveList;
 exports.replyWithUpdatedRaveList = replyWithUpdatedRaveList;
@@ -217,3 +307,6 @@ exports.replyWithForcedRaveUpdateStatus = replyWithForcedRaveUpdateStatus;
 exports.replyWithCotiz = replyWithCotiz;
 exports.replyWithNextCYTEK = replyWithNextCYTEK;
 exports.replyWithNextRaveInList = replyWithNextRaveInList;
+exports.replyWithNextCYTEK = replyWithNextCYTEK;
+exports.updateCYTekStatus = updateCYTekStatus;
+exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks
