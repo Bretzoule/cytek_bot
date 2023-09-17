@@ -42,6 +42,11 @@ function registerCommands(bot) {
       (adminRequired = true)
     )
   );
+  bot.command("grognon", (ctx) =>
+    commandGuard(ctx, () =>
+      ctx.replyWithPhoto(Input.fromLocalFile("misc/images/grognon.jpg"))
+    )
+  );
   bot.command("cytek", (ctx) =>
     commandGuard(ctx, () => replyWithNextCYTEK(ctx))
   );
