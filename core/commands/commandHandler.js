@@ -14,6 +14,7 @@ const {
   commandGuard,
   toggleMaintenanceMode,
 ***REMOVED*** = require("../utils/commandGuard");
+const { Input ***REMOVED*** = require("telegraf");
 const { nextRaveIndex, getRaveIndex ***REMOVED*** = require("./raveCommands/ravePlanner");
 
 function registerCommands(bot) {
