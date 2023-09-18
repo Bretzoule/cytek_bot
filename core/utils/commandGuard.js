@@ -30,7 +30,7 @@ async function commandGuard(ctx, callback, adminRequired = false) {
     !maintenanceMode ||
     allowedList.admins.includes(ctx.update.message?.from.id ?? ctx.update.callback_query.message.chat.id)
   ) {
-    if(ctx.telegram.getUserProfilePhotos(ctx.from.id).total_count == 0) {
+    if(await ctx.telegram.getUserProfilePhotos(ctx.from.id).total_count == 0) {
       ctx.reply("Tu as besoin d'une photo de profil pour utiliser ce bot.");
       return;
     }
