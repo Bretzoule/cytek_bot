@@ -9,6 +9,7 @@ const {
   replyWithProut,
   replyWithUpdatedProutList,
   updateCYTekStatus,
+  replyWithMeteo,
 } = require("./replies");
 const {
   commandGuard,
@@ -59,6 +60,7 @@ function registerCommands(bot) {
       (adminRequired = true)
     )
   );
+  bot.command("meteo", (ctx) => commandGuard(ctx, () => replyWithMeteo(ctx)));
 }
 
 function registerActions(bot) {

@@ -34,7 +34,7 @@ async function commandGuard(ctx, callback, adminRequired = false) {
         ctx.update.callback_query?.message != undefined || 
       (ctx.update.message.chat.type == "private" &&
         allowedList.users.includes(ctx.update.message.from.id)) ||
-        getUserProfilePhotos(ctx.update.message.from.id).photos != [] ||
+        ctx.telegram.getUserProfilePhotos(ctx.update.message.from.id).photos != [] ||
       ((ctx.update.message.chat.type == "group" ||
         ctx.update.message.chat.type == "supergroup") &&
         allowedList.groups.includes(ctx.update.message.chat.id))

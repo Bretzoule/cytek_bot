@@ -18,6 +18,7 @@ const {
   fetchCYTekContent,
   writeToCYTekFile,
 } = require("./cytekCommands/cytekPlanner");
+const { requestMeteo } = require("./meteoCommands/meteoPlanner");
 /* Init different lists */
 
 async function hiddenReplyWithProutList(bot) {
@@ -86,6 +87,7 @@ async function replyWithForcedRaveUpdateStatus(ctx) {
     console.log(err);
   }
 }
+
 
 async function replyWithNextRaveInList(ctx, raveKey = undefined) {
   if (getRaveList().length == 0) {
@@ -305,6 +307,37 @@ ${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
   }
 }
 
+async function replyWithMeteo(ctx){
+  try {
+    let meteoInfos= await requestMeteo(ctx);
+
+    if(meteoInfos == -1){
+      return;
+    }
+    
+    let meteoInfosShort = {
+      "name": meteoInfos.city_info.name,
+      "weather": meteoInfos.current_condition.condition,
+      "temperature": meteoInfos.current_condition.tmp,
+      "humidity": meteoInfos.current_condition.humidity,
+      "pressure": meteoInfos.current_condition.pressure,
+      "windSpeed": meteoInfos.current_condition.wnd_spd,
+    }
+    messageToSend = "ville : " + meteoInfosShort.name + "\n" 
+    + "météo : " + meteoInfosShort.weather + "\n"
+    + "température : " + meteoInfosShort.temperature + "°C\n"
+    + "humidité : " + meteoInfosShort.humidity + "%\n"
+    + "pression : " + meteoInfosShort.pressure + "hPa\n"
+    + "vent : " + meteoInfosShort.windSpeed + "km/h\n";
+
+    ctx.reply(messageToSend);
+
+  } catch(error) {
+    console.log(error);
+    ctx.reply("Je ne peux pas envoyer la météo pour le moment.");
+  }
+}
+
 async function replyWithNextCYTEK(ctx) {
   if (getCYTek().name == "") {
     await fetchCYTekContent();
@@ -357,3 +390,5 @@ exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks;
 exports.replyWithProut = replyWithProut;
 exports.replyWithUpdatedProutList = replyWithUpdatedProutList;
 exports.hiddenReplyWithProutList = hiddenReplyWithProutList;
+exports.replyWithMeteo = replyWithMeteo;
+
