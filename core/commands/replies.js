@@ -9,6 +9,9 @@ const {
   removeOldRaves
 ***REMOVED*** = require("./raveCommands/ravePlanner");
 const {
+  timerUntilNextRave
+***REMOVED*** = require("./raveCommands/viteMaDose");
+const {
   getProutsList,
   reloadProutsList,
   updateProutList
@@ -345,6 +348,24 @@ ${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("
   ***REMOVED***
 ***REMOVED***
 
+async function replyWithNextRaveTimer(ctx) {
+  let nextRaveTimer = timerUntilNextRave();
+  if (nextRaveTimer.rave == null) {
+      ctx.reply({ text: "Aucune rave de prévue ! *VITE MA DOSEEEEEEE AAAAH !*", parse_mode: "Markdown" ***REMOVED***);
+  ***REMOVED*** else {
+      ctx.reply(
+          {
+              text:
+                  `🎉 Prochaine rave dans 🎉 :
+*${nextRaveTimer.days***REMOVED**** jours, *${nextRaveTimer.hours***REMOVED**** heures, *${nextRaveTimer.minutes***REMOVED**** minutes et *${nextRaveTimer.seconds***REMOVED**** secondes 
+------------------------------------
+*${nextRaveTimer.rave.name***REMOVED****`
+              , parse_mode: "Markdown",
+          ***REMOVED***);
+  ***REMOVED***
+***REMOVED***
+
+exports.replyWithNextRaveTimer = replyWithNextRaveTimer
 exports.hiddenReplyWithRaveList = hiddenReplyWithRaveList;
 exports.replyWithRaveList = replyWithRaveList;
 exports.replyWithUpdatedRaveList = replyWithUpdatedRaveList;
