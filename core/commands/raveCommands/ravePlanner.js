@@ -143,7 +143,7 @@ function createEvent(shotgunEvent, attendingList = []) {
     name: shotgunEvent.name.replace(/&amp;/g, "&"),
     description:
       shotgunEvent.description.replace(/&amp;/g, "&").substring(0, 100) +
-        "..." ?? "Pas de description",
+      "..." ?? "Pas de description",
     startDate: `${shotgunEvent.startDate}`,
     endDate: `${shotgunEvent.endDate}`,
     image: shotgunEvent.image[0],
@@ -202,6 +202,7 @@ async function updateRaveList(ctx, raveKeyURL, remove) {
 }
 
 exports.nextRaveIndex = nextRaveIndex;
+exports.removeOldRaves = removeOldRaves;
 exports.getRaveIndex = getRaveIndex;
 exports.updateRaveList = updateRaveList;
 exports.reloadRaveList = reloadRaveList;
