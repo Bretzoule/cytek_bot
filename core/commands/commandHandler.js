@@ -9,6 +9,7 @@ const {
   replyWithProut,
   replyWithUpdatedProutList,
   updateCYTekStatus,
+  replyWithNextRaveTimer
 } = require("./replies");
 const {
   commandGuard,
@@ -51,6 +52,7 @@ function registerCommands(bot) {
   bot.command("cytek", (ctx) =>
     commandGuard(ctx, () => replyWithNextCYTEK(ctx))
   );
+  bot.command("vitemadose", (ctx) => commandGuard(ctx, () => replyWithNextRaveTimer(ctx)));
   bot.command("prout", (ctx) => commandGuard(ctx, () => replyWithProut(ctx)));
   bot.command("addProut", (ctx) =>
     commandGuard(
