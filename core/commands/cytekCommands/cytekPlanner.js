@@ -46,6 +46,30 @@ async function writeToCYTekFile() {
   );
 ***REMOVED***
 
+async function updateCYTekData(args) {
+  switch (args[0]) {
+    case "name":
+      currentCytek.name = args[1];
+      break;
+    case "description":
+      currentCytek.description = args[1];
+      break;
+    case "startDate":
+      currentCytek.startDate = new Date(args[1]);
+      break;
+    case "endDate":
+      currentCytek.endDate = new Date(args[1]);
+      break;
+    case "reset":
+      cytekHydrator({***REMOVED***);
+      break;
+    default:
+      console.log("Liste des champs modifiables : \n name \n description \n startDate \n endDate \n reset");    
+      break;
+  ***REMOVED***
+  writeToCYTekFile();
+***REMOVED***
+
 async function fetchCYTekContent() {
   try {
     let cytekData = fs.readFileSync(
@@ -60,4 +84,5 @@ async function fetchCYTekContent() {
 
 exports.writeToCYTekFile = writeToCYTekFile;
 exports.fetchCYTekContent = fetchCYTekContent;
+exports.updateCYTekData = updateCYTekData;
 exports.getCYTek = getCYTek;

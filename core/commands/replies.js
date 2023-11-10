@@ -6,6 +6,7 @@ const {
   writeToRaveFile,
   updateRaveContent,
   getRaveIndex,
+  removeOldRaves
 ***REMOVED*** = require("./raveCommands/ravePlanner");
 const {
   getProutsList,
@@ -80,6 +81,7 @@ async function hiddenReplyWithCYTeks() {
 
 async function replyWithForcedRaveUpdateStatus(ctx) {
   try {
+***REMOVED***
     await updateRaveContent();
     ctx.reply("Raves mises à jour !");
   ***REMOVED*** catch (err) {
