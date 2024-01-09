@@ -21,6 +21,7 @@ const {
   getCYTek,
   fetchCYTekContent,
   writeToCYTekFile,
+  updateCYTekData
 } = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
 
@@ -30,9 +31,9 @@ async function hiddenReplyWithProutList(bot) {
   }
   console.log(
     "Liste des prouts disponibles:\n" +
-      getProutsList()
-        .map((prout) => prout.path)
-        .join("\n")
+    getProutsList()
+      .map((prout) => prout.path)
+      .join("\n")
   );
 }
 
@@ -69,9 +70,9 @@ async function hiddenReplyWithRaveList(bot) {
   }
   console.log(
     "Raves prévues :\n" +
-      getRaveList()
-        .map((rave) => rave.url)
-        .join("\n")
+    getRaveList()
+      .map((rave) => rave.url)
+      .join("\n")
   );
 }
 
@@ -116,13 +117,12 @@ async function replyWithNextRaveInList(ctx, raveKey = undefined) {
     await ctx.editMessageCaption(
       `
   *${rave.name}*
-  Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${
-        rave.location.name
+  Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${rave.location.name
       }* !
   Tarifs encore dispo : 
   ${rave.prices
-    .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
-    .join("\n")}
+        .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+        .join("\n")}
   Gens chauds : 
   ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
       {
@@ -159,13 +159,12 @@ async function updateRaveListStatus(ctx, raveIndex) {
     await ctx.editMessageCaption(
       `
 *${rave.name}*
-Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${
-        rave.location.name
+Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${rave.location.name
       }* !
 Tarifs encore dispo : 
 ${rave.prices
-  .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
-  .join("\n")}
+        .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+        .join("\n")}
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
       {
@@ -233,13 +232,12 @@ async function replyWithRaveList(ctx, raveKey = undefined) {
     await ctx.replyWithPhoto(Input.fromURL(rave.image), {
       caption: `
 *${rave.name}*
-Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${
-        rave.location.name
-      }* !
+Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${rave.location.name
+        }* !
 Tarifs encore dispo : 
 ${rave.prices
-  .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
-  .join("\n")}
+          .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+          .join("\n")}
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
       parse_mode: "Markdown",
@@ -289,11 +287,11 @@ CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")}*
 ${cytek.description}
 Billeterie dispooo :
 ${cytek.prices
-  .map(
-    (priceDetails) =>
-      `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
-  )
-  .join("\n")}
+        .map(
+          (priceDetails) =>
+            `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
+        )
+        .join("\n")}
 Gens chauds : 
 ${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
       {
@@ -328,11 +326,11 @@ CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")}*
 ${cytek.description}
 Billeterie dispooo :
 ${cytek.prices
-  .map(
-    (priceDetails) =>
-      `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
-  )
-  .join("\n")}
+          .map(
+            (priceDetails) =>
+              `${priceDetails.price}€ \- ${priceDetails.type} \- ${priceDetails.status}`
+          )
+          .join("\n")}
 Gens chauds : 
 ${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
       parse_mode: "Markdown",
@@ -348,20 +346,32 @@ ${cytek.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
   }
 }
 
+async function replyWithUpdatedCYTEK(ctx) {
+  try {
+    let key = ctx.message.text.split(" ")[1];
+    let value = ctx.message.text.split(" ").slice(2).join(" ");
+    updateCYTekData([key, value]);
+    replyWithNextCYTEK(ctx);
+  } catch (errorMessage) {
+    if (errorMessage === "InvalidDateFormat") ctx.reply("Format de date invalide.");
+    console.log(errorMessage);
+  }
+}
+
 async function replyWithNextRaveTimer(ctx) {
   let nextRaveTimer = timerUntilNextRave();
   if (nextRaveTimer.rave == null) {
-      ctx.reply({ text: "Aucune rave de prévue ! *VITE MA DOSEEEEEEE AAAAH !*", parse_mode: "Markdown" });
+    ctx.reply({ text: "Aucune rave de prévue ! *VITE MA DOSEEEEEEE AAAAH !*", parse_mode: "Markdown" });
   } else {
-      ctx.reply(
-          {
-              text:
-                  `🎉 Prochaine rave dans 🎉 :
+    ctx.reply(
+      {
+        text:
+          `🎉 Prochaine rave dans 🎉 :
 *${nextRaveTimer.days}* jours, *${nextRaveTimer.hours}* heures, *${nextRaveTimer.minutes}* minutes et *${nextRaveTimer.seconds}* secondes 
 ------------------------------------
 *${nextRaveTimer.rave.name}*`
-              , parse_mode: "Markdown",
-          });
+        , parse_mode: "Markdown",
+      });
   }
 }
 
@@ -380,3 +390,4 @@ exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks;
 exports.replyWithProut = replyWithProut;
 exports.replyWithUpdatedProutList = replyWithUpdatedProutList;
 exports.hiddenReplyWithProutList = hiddenReplyWithProutList;
+exports.replyWithUpdatedCYTEK = replyWithUpdatedCYTEK;
