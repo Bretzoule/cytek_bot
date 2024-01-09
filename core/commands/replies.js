@@ -21,6 +21,7 @@ const {
   getCYTek,
   fetchCYTekContent,
   writeToCYTekFile,
+  updateCYTekData
 ***REMOVED*** = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
 
@@ -30,9 +31,9 @@ async function hiddenReplyWithProutList(bot) {
   ***REMOVED***
   console.log(
     "Liste des prouts disponibles:\n" +
-      getProutsList()
-        .map((prout) => prout.path)
-        .join("\n")
+    getProutsList()
+      .map((prout) => prout.path)
+      .join("\n")
   );
 ***REMOVED***
 
@@ -69,9 +70,9 @@ async function hiddenReplyWithRaveList(bot) {
   ***REMOVED***
   console.log(
     "Raves prévues :\n" +
-      getRaveList()
-        .map((rave) => rave.url)
-        .join("\n")
+    getRaveList()
+      .map((rave) => rave.url)
+      .join("\n")
   );
 ***REMOVED***
 
@@ -116,13 +117,12 @@ async function replyWithNextRaveInList(ctx, raveKey = undefined) {
     await ctx.editMessageCaption(
       `
   *${rave.name***REMOVED****
-  Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${
-        rave.location.name
+  Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${rave.location.name
       ***REMOVED**** !
   Tarifs encore dispo : 
   ${rave.prices
-    .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
-    .join("\n")***REMOVED***
+        .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
+        .join("\n")***REMOVED***
   Gens chauds : 
   ${rave.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
       {
@@ -159,13 +159,12 @@ async function updateRaveListStatus(ctx, raveIndex) {
     await ctx.editMessageCaption(
       `
 *${rave.name***REMOVED****
-Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${
-        rave.location.name
+Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${rave.location.name
       ***REMOVED**** !
 Tarifs encore dispo : 
 ${rave.prices
-  .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
-  .join("\n")***REMOVED***
+        .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
+        .join("\n")***REMOVED***
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
       {
@@ -233,13 +232,12 @@ async function replyWithRaveList(ctx, raveKey = undefined) {
     await ctx.replyWithPhoto(Input.fromURL(rave.image), {
       caption: `
 *${rave.name***REMOVED****
-Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${
-        rave.location.name
-      ***REMOVED**** !
+Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")***REMOVED**** au *${rave.location.name
+        ***REMOVED**** !
 Tarifs encore dispo : 
 ${rave.prices
-  .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
-  .join("\n")***REMOVED***
+          .map((priceDetails) => `${priceDetails.price***REMOVED***€ \- ${priceDetails.status***REMOVED***`)
+          .join("\n")***REMOVED***
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
       parse_mode: "Markdown",
@@ -289,11 +287,11 @@ CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")***REMOVED*
 ${cytek.description***REMOVED***
 Billeterie dispooo :
 ${cytek.prices
-  .map(
-    (priceDetails) =>
-      `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
-  )
-  .join("\n")***REMOVED***
+        .map(
+          (priceDetails) =>
+            `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
+        )
+        .join("\n")***REMOVED***
 Gens chauds : 
 ${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
       {
@@ -328,11 +326,11 @@ CYTEK prévue le *${new Date(cytek.startDate).toLocaleString("FR-fr")***REMOVED*
 ${cytek.description***REMOVED***
 Billeterie dispooo :
 ${cytek.prices
-  .map(
-    (priceDetails) =>
-      `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
-  )
-  .join("\n")***REMOVED***
+          .map(
+            (priceDetails) =>
+              `${priceDetails.price***REMOVED***€ \- ${priceDetails.type***REMOVED*** \- ${priceDetails.status***REMOVED***`
+          )
+          .join("\n")***REMOVED***
 Gens chauds : 
 ${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("\n")***REMOVED***`,
       parse_mode: "Markdown",
@@ -348,20 +346,32 @@ ${cytek.attending.map((attender) => `${attender.first_name***REMOVED***`).join("
   ***REMOVED***
 ***REMOVED***
 
+async function replyWithUpdatedCYTEK(ctx) {
+  try {
+    let key = ctx.message.text.split(" ")[1];
+    let value = ctx.message.text.split(" ").slice(2).join(" ");
+    updateCYTekData([key, value]);
+    replyWithNextCYTEK(ctx);
+  ***REMOVED*** catch (errorMessage) {
+    if (errorMessage === "InvalidDateFormat") ctx.reply("Format de date invalide.");
+    console.log(errorMessage);
+  ***REMOVED***
+***REMOVED***
+
 async function replyWithNextRaveTimer(ctx) {
   let nextRaveTimer = timerUntilNextRave();
   if (nextRaveTimer.rave == null) {
-      ctx.reply({ text: "Aucune rave de prévue ! *VITE MA DOSEEEEEEE AAAAH !*", parse_mode: "Markdown" ***REMOVED***);
+    ctx.reply({ text: "Aucune rave de prévue ! *VITE MA DOSEEEEEEE AAAAH !*", parse_mode: "Markdown" ***REMOVED***);
   ***REMOVED*** else {
-      ctx.reply(
-          {
-              text:
-                  `🎉 Prochaine rave dans 🎉 :
+    ctx.reply(
+      {
+        text:
+          `🎉 Prochaine rave dans 🎉 :
 *${nextRaveTimer.days***REMOVED**** jours, *${nextRaveTimer.hours***REMOVED**** heures, *${nextRaveTimer.minutes***REMOVED**** minutes et *${nextRaveTimer.seconds***REMOVED**** secondes 
 ------------------------------------
 *${nextRaveTimer.rave.name***REMOVED****`
-              , parse_mode: "Markdown",
-          ***REMOVED***);
+        , parse_mode: "Markdown",
+      ***REMOVED***);
   ***REMOVED***
 ***REMOVED***
 
@@ -380,3 +390,4 @@ exports.hiddenReplyWithCYTeks = hiddenReplyWithCYTeks;
 exports.replyWithProut = replyWithProut;
 exports.replyWithUpdatedProutList = replyWithUpdatedProutList;
 exports.hiddenReplyWithProutList = hiddenReplyWithProutList;
+exports.replyWithUpdatedCYTEK = replyWithUpdatedCYTEK;

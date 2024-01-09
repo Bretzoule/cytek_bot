@@ -19,16 +19,16 @@ function getCYTek() {
   return currentCytek;
 ***REMOVED***
 
-function cytekHydrator(rawCYTEKData) {
-  currentCytek.name = rawCYTEKData.name ?? "TBA";
+function cytekHydrator(rawCYTEKData = {***REMOVED***) {
+  currentCytek.name = rawCYTEKData.name ?? "";
   currentCytek.description = rawCYTEKData.description ?? "TBA";
   currentCytek.startDate = rawCYTEKData.startDate ?? "TBA";
   currentCytek.endDate = rawCYTEKData.endDate ?? "TBA";
-  currentCytek.image = rawCYTEKData.image ?? "/assets/images/cytek.png";
-  currentCytek.url = rawCYTEKData.url ?? "TBA";
-  currentCytek.location.name = rawCYTEKData.location.name ?? "TBA";
-  currentCytek.location.address = rawCYTEKData.location.address ?? "TBA";
-  currentCytek.location.url = rawCYTEKData.location.url ?? "TBA";
+  currentCytek.image = rawCYTEKData.image ?? "misc/images/cytek/logo_cytek.jpg";
+  currentCytek.url = rawCYTEKData.url ?? "https://google.fr";
+  currentCytek.location.name = rawCYTEKData.location?.name ?? "TBA";
+  currentCytek.location.address = rawCYTEKData?.location?.address ?? "TBA";
+  currentCytek.location.url = rawCYTEKData.location?.url ?? "https://google.fr";
   currentCytek.prices = rawCYTEKData.prices ?? [];
   currentCytek.attending = rawCYTEKData.attending ?? [];
 ***REMOVED***
@@ -46,6 +46,10 @@ async function writeToCYTekFile() {
   );
 ***REMOVED***
 
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+***REMOVED***
+
 async function updateCYTekData(args) {
   switch (args[0]) {
     case "name":
@@ -55,16 +59,26 @@ async function updateCYTekData(args) {
       currentCytek.description = args[1];
       break;
     case "startDate":
-      currentCytek.startDate = new Date(args[1]);
+      let startDate = new Date(args[1]);
+      if (isValidDate(startDate)) {
+        currentCytek.startDate = startDate
+      ***REMOVED*** else {
+        throw Error("InvalidDateFormat");
+      ***REMOVED***
       break;
     case "endDate":
-      currentCytek.endDate = new Date(args[1]);
+      let endDate = new Date(args[1]);
+      if (isValidDate(endDate)) {
+        currentCytek.endDate = endDate
+      ***REMOVED*** else {
+        throw Error("InvalidDateFormat");
+      ***REMOVED***
       break;
     case "reset":
-      cytekHydrator({***REMOVED***);
+      cytekHydrator();
       break;
     default:
-      console.log("Liste des champs modifiables : \n name \n description \n startDate \n endDate \n reset");    
+      console.log("Liste des champs modifiables : \n name \n description \n startDate \n endDate \n reset");
       break;
   ***REMOVED***
   writeToCYTekFile();

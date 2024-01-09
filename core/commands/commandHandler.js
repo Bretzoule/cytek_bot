@@ -9,7 +9,8 @@ const {
   replyWithProut,
   replyWithUpdatedProutList,
   updateCYTekStatus,
-  replyWithNextRaveTimer
+  replyWithNextRaveTimer,
+  replyWithUpdatedCYTEK
 ***REMOVED*** = require("./replies");
 const {
   commandGuard,
@@ -52,6 +53,7 @@ function registerCommands(bot) {
   bot.command("cytek", (ctx) =>
     commandGuard(ctx, () => replyWithNextCYTEK(ctx))
   );
+  bot.command("updatecytek", (ctx) => commandGuard(ctx, () => replyWithUpdatedCYTEK(ctx), (adminRequired = true)));
   bot.command("vitemadose", (ctx) => commandGuard(ctx, () => replyWithNextRaveTimer(ctx)));
   bot.command("prout", (ctx) => commandGuard(ctx, () => replyWithProut(ctx)));
   bot.command("addProut", (ctx) =>
