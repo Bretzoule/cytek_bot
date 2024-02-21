@@ -134,7 +134,7 @@ function getContent(responseData) {
     const $ = cheerio.load(responseData);
     let scriptList = $("script").get();
     for (const scriptus of scriptList) {
-        if ($(scriptus).text().includes('"@type":"Event"')) {
+        if ($(scriptus).text().includes('"@type":"MusicEvent"')) {
             return JSON.parse($(scriptus).text());
         }
     }
@@ -142,6 +142,11 @@ function getContent(responseData) {
 }
 
 function createEvent(shotgunEvent, attendingList = []) {
+    let url  = "https://maps.google.fr"
+    if( shotgunEvent.location.name != null && shotgunEvent.location.geo != null )
+    {
+        url = `https://www.google.com/maps/search/${shotgunEvent.location.name} ${shotgunEvent.location.address}/@${shotgunEvent.location.geo.latitude},${shotgunEvent.location.geo.longitude}`
+    }
     return {
         name: shotgunEvent.name.replace(/&amp;/g, '&'),
         description: shotgunEvent.description.replace(/&amp;/g, '&').substring(0, 100) + "..." ?? "Pas de description",
@@ -152,7 +157,7 @@ function createEvent(shotgunEvent, attendingList = []) {
         location: {
             name: shotgunEvent.location.name ?? "Lieu non renseigné",
             address: shotgunEvent.location.address.streetAddress ?? "Lieu non renseigné",
-            url: shotgunEvent.location.address.url ?? "about:blank",
+            url: url
         },
         prices: shotgunEvent.offers.filter(offer => offer.availability != "https://schema.org/SoldOut").map(offer => {
             return {
