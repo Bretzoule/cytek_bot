@@ -10,14 +10,15 @@ const {
   replyWithUpdatedProutList,
   updateCYTekStatus,
   replyWithNextRaveTimer,
+  replyWithInformRaveChangeStatus,
   replyWithUpdatedCYTEK
-***REMOVED*** = require("./replies");
+} = require("./replies");
 const {
   commandGuard,
   toggleMaintenanceMode,
-***REMOVED*** = require("../utils/commandGuard");
-const { Input ***REMOVED*** = require("telegraf");
-const { nextRaveIndex, getRaveIndex ***REMOVED*** = require("./raveCommands/ravePlanner");
+} = require("../utils/commandGuard");
+const { Input } = require("telegraf");
+const { nextRaveIndex, getRaveIndex } = require("./raveCommands/ravePlanner");
 
 function registerCommands(bot) {
   bot.command("addRave", (ctx) =>
@@ -41,10 +42,17 @@ function registerCommands(bot) {
   bot.command("forceUpdateRaves", (ctx) =>
     commandGuard(
       ctx,
-      () => replyWithForcedRaveUpdateStatus(ctx),
+      () => replyWithForcedRaveUpdateStatus(ctx, bot),
       (adminRequired = true)
     )
   );
+  bot.command("subscribeToPriceUpdates", (ctx) =>
+  commandGuard(
+    ctx,
+    () => replyWithInformRaveChangeStatus(ctx),
+    (adminRequired = true)
+  )
+);
   bot.command("grognon", (ctx) =>
     commandGuard(ctx, () =>
       ctx.replyWithPhoto(Input.fromLocalFile("misc/images/grognon.jpg"))
@@ -63,41 +71,41 @@ function registerCommands(bot) {
       (adminRequired = true)
     )
   );
-***REMOVED***
+}
 
 function registerActions(bot) {
   bot.action(/^goRave-(\d+)$/, async (ctx) => {
-***REMOVED***
+    try {
       await ctx.answerCbQuery();
       commandGuard(
         ctx,
         async () => await updateRaveListStatus(ctx, ctx.match[1])
-  ***REMOVED***
-    ***REMOVED*** catch (error) {
+      );
+    } catch (error) {
       console.log(error);
-    ***REMOVED***
-  ***REMOVED***);
+    }
+  });
   bot.action("goCYTek", async (ctx) => {
-***REMOVED***
+    try {
       await ctx.answerCbQuery();
       commandGuard(ctx, async () => await updateCYTekStatus(ctx));
-    ***REMOVED*** catch (error) {
+    } catch (error) {
       console.log(error);
-    ***REMOVED***
-  ***REMOVED***);
+    }
+  });
   bot.action(/^nextRave-(\d+)$/, async (ctx) => {
-***REMOVED***
+    try {
       await ctx.answerCbQuery();
       commandGuard(ctx, async () => {
         if (ctx.match[1] != nextRaveIndex(ctx.match[1])) {
           await replyWithNextRaveInList(ctx, getRaveIndex());
-        ***REMOVED***
-      ***REMOVED***);
-    ***REMOVED*** catch (error) {
+        }
+      });
+    } catch (error) {
       console.log(error);
-    ***REMOVED***
-  ***REMOVED***);
-***REMOVED***
+    }
+  });
+}
 
 exports.registerCommands = registerCommands;
 exports.registerActions = registerActions;

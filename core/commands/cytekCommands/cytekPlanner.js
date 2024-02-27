@@ -1,4 +1,4 @@
-***REMOVED***
+const fs = require("fs");
 let currentCytek = {
   name: "",
   description: "",
@@ -10,16 +10,16 @@ let currentCytek = {
     name: "",
     address: "",
     url: "",
-  ***REMOVED***,
+  },
   prices: [],
   attending: [],
-***REMOVED***;
+};
 
 function getCYTek() {
   return currentCytek;
-***REMOVED***
+}
 
-function cytekHydrator(rawCYTEKData = {***REMOVED***) {
+function cytekHydrator(rawCYTEKData = {}) {
   currentCytek.name = rawCYTEKData.name ?? "";
   currentCytek.description = rawCYTEKData.description ?? "TBA";
   currentCytek.startDate = rawCYTEKData.startDate ?? "TBA";
@@ -31,7 +31,7 @@ function cytekHydrator(rawCYTEKData = {***REMOVED***) {
   currentCytek.location.url = rawCYTEKData.location?.url ?? "https://google.fr";
   currentCytek.prices = rawCYTEKData.prices ?? [];
   currentCytek.attending = rawCYTEKData.attending ?? [];
-***REMOVED***
+}
 
 async function writeToCYTekFile() {
   fs.writeFileSync(
@@ -40,15 +40,15 @@ async function writeToCYTekFile() {
     async function (err) {
       if (err) {
         console.log(err);
-      ***REMOVED***
+      }
       await reloadRaveList();
-    ***REMOVED***
+    }
   );
-***REMOVED***
+}
 
 function isValidDate(d) {
   return d instanceof Date && !isNaN(d);
-***REMOVED***
+}
 
 async function updateCYTekData(args) {
   switch (args[0]) {
@@ -62,17 +62,17 @@ async function updateCYTekData(args) {
       let startDate = new Date(args[1]);
       if (isValidDate(startDate)) {
         currentCytek.startDate = startDate
-      ***REMOVED*** else {
+      } else {
         throw Error("InvalidDateFormat");
-      ***REMOVED***
+      }
       break;
     case "endDate":
       let endDate = new Date(args[1]);
       if (isValidDate(endDate)) {
         currentCytek.endDate = endDate
-      ***REMOVED*** else {
+      } else {
         throw Error("InvalidDateFormat");
-      ***REMOVED***
+      }
       break;
     case "reset":
       cytekHydrator();
@@ -80,21 +80,21 @@ async function updateCYTekData(args) {
     default:
       console.log("Liste des champs modifiables : \n name \n description \n startDate \n endDate \n reset");
       break;
-  ***REMOVED***
+  }
   writeToCYTekFile();
-***REMOVED***
+}
 
 async function fetchCYTekContent() {
   try {
     let cytekData = fs.readFileSync(
       `core/commands/cytekCommands/cytekContent.json`
-***REMOVED***
+    );
     cytekHydrator(JSON.parse(cytekData));
-  ***REMOVED*** catch (error) {
+  } catch (error) {
     console.log("Error while reading cytekPlanner.json");
     console.log(error);
-  ***REMOVED***
-***REMOVED***
+  }
+}
 
 exports.writeToCYTekFile = writeToCYTekFile;
 exports.fetchCYTekContent = fetchCYTekContent;

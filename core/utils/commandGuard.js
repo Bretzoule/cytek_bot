@@ -11,19 +11,19 @@ function throttler(waitTime) {
       const diff = now - hitTime;
       if (diff < waitTime) {
         return false;
-      ***REMOVED***
+      }
       usersMap.set(chatId, now);
       return true;
-    ***REMOVED***
+    }
     usersMap.set(chatId, now);
     return true;
-  ***REMOVED***;
-***REMOVED***
+  };
+}
 
 function toggleMaintenanceMode() {
   maintenanceMode = !maintenanceMode;
-  console.log(`Maintenance mode is now ${maintenanceMode***REMOVED***`);
-***REMOVED***
+  console.log(`Maintenance mode is now ${maintenanceMode}`);
+}
 
 async function commandGuard(ctx, callback, adminRequired = false) {
   if (
@@ -33,7 +33,7 @@ async function commandGuard(ctx, callback, adminRequired = false) {
     // if(await ctx.telegram.getUserProfilePhotos(ctx.from.id).total_count == 0) {
     //   ctx.reply("Tu as besoin d'une photo de profil pour utiliser ce bot.");
     //   return;
-    // ***REMOVED***
+    // }
     if (
         ctx.update.callback_query?.message != undefined || 
       (ctx.update.message.chat.type == "private" &&
@@ -49,13 +49,13 @@ async function commandGuard(ctx, callback, adminRequired = false) {
       ) {
         if (throttle(ctx.update.message?.chat.id ?? ctx.update.callback_query.message.chat.id)) {
           await callback();
-        ***REMOVED***
-      ***REMOVED***
-    ***REMOVED*** else {
+        }
+      }
+    } else {
       console.log(ctx.update.message);
-    ***REMOVED***
-  ***REMOVED***
-***REMOVED***
+    }
+  }
+}
 
 exports.toggleMaintenanceMode = toggleMaintenanceMode;
 exports.commandGuard = commandGuard;

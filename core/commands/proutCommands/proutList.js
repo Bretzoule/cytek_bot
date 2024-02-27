@@ -1,21 +1,21 @@
-***REMOVED***
+const fs = require("fs");
 const proutsFolder = "misc/audio/prouts";
-***REMOVED***
+const axios = require("axios");
 var proutsList = [];
 
 function getProutsList() {
   return proutsList;
-***REMOVED***
+}
 
 async function reloadProutsList() {
   try {
-    const data = fs.readFileSync(`${proutsFolder***REMOVED***/proutList.json`);
+    const data = fs.readFileSync(`${proutsFolder}/proutList.json`);
     proutsList = JSON.parse(data);
-  ***REMOVED*** catch (error) {
+  } catch (error) {
     console.log("Error while reading proutList.json");
     console.log(error);
-  ***REMOVED***
-***REMOVED***
+  }
+}
 
 async function updateProutList(ctx) {
   let fileID = ctx.update.message.reply_to_message.voice.file_id;
@@ -25,11 +25,11 @@ async function updateProutList(ctx) {
   if (fileID == undefined) {
     ctx.reply("Vous devez répondre à un prout pour l'ajouter à la liste !");
     return;
-  ***REMOVED***
+  }
   let url = await ctx.telegram.getFileLink(fileID);
-  let response = await axios({ url, responseType: "stream" ***REMOVED***);
+  let response = await axios({ url, responseType: "stream" });
   return new Promise((resolve, reject) => {
-    let writeStreamLocation = `${proutsFolder***REMOVED***/${fileName***REMOVED***.ogg`;
+    let writeStreamLocation = `${proutsFolder}/${fileName}.ogg`;
     response.data
       .pipe(fs.createWriteStream(writeStreamLocation))
       .on("finish", () => {
@@ -37,25 +37,25 @@ async function updateProutList(ctx) {
           path: writeStreamLocation,
           date: date,
           owner: owner,
-        ***REMOVED***);
+        });
         fs.writeFile(
-          `${proutsFolder***REMOVED***/proutList.json`,
+          `${proutsFolder}/proutList.json`,
           JSON.stringify(getProutsList()),
           function (err) {
-***REMOVED***
+            if (err) {
               console.log(err);
-            ***REMOVED***
+            }
             reloadProutsList();
             resolve();
-          ***REMOVED***
-    ***REMOVED***
-      ***REMOVED***)
+          }
+        );
+      })
       .on("error", (e) => {
         console.log(e);
         reject(e);
-      ***REMOVED***);
-  ***REMOVED***);
-***REMOVED***
+      });
+  });
+}
 
 exports.getProutsList = getProutsList
 exports.reloadProutsList = reloadProutsList;

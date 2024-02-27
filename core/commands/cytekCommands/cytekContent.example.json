@@ -9,10 +9,10 @@
     "name": "",
     "address": "",
     "url": ""
-  ***REMOVED***,
+  },
   "prices": [
-    { "price": 10, "type": "Non-cotisant", "status": "Disponible" ***REMOVED***,
-    { "price": 5, "type": "Cotisant", "status": "Disponible" ***REMOVED***
+    { "price": 10, "type": "Non-cotisant", "status": "Disponible" },
+    { "price": 5, "type": "Cotisant", "status": "Disponible" }
   ],
   "attending": []
-***REMOVED***
+}

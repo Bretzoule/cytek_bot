@@ -1,11 +1,11 @@
 const cron = require("node-cron");
-const { updateRaveContent ***REMOVED*** = require("../commands/raveCommands/ravePlanner");
+const { updateRaveContent } = require("../commands/raveCommands/ravePlanner");
 
-async function registerRoutines() {
+async function registerRoutines(bot) {
   cron.schedule("0 */2 * * *", async () => {
-    await updateRaveContent();
+    await updateRaveContent(bot);
     console.log("Rave content updated");
-  ***REMOVED***);
-***REMOVED***
+  });
+}
 
 exports.registerRoutines = registerRoutines;
