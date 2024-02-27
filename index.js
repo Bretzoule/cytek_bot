@@ -25,7 +25,7 @@ axios
     await hiddenReplyWithProutList(bot)
     await hiddenReplyWithCYTeks();
     // Register commands
-    registerCommands(bot);
+    await registerCommands(bot);
     registerActions(bot);
     registerRoutines();
     // registerMessageHandler();

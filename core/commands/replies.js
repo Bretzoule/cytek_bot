@@ -5,7 +5,7 @@ const {
   reloadRaveList,
   writeToRaveFile,
   updateRaveContent,
-  getRaveIndex,
+  setInformRaveChange,
   removeOldRaves
 } = require("./raveCommands/ravePlanner");
 const {
@@ -24,6 +24,9 @@ const {
   updateCYTekData
 } = require("./cytekCommands/cytekPlanner");
 /* Init different lists */
+
+
+const maxTarifNameSize = 22;
 
 async function hiddenReplyWithProutList(bot) {
   if (getProutsList().length == 0) {
@@ -83,10 +86,10 @@ async function hiddenReplyWithCYTeks() {
   console.log("CYTek prévue :\n" + getCYTek().name);
 }
 
-async function replyWithForcedRaveUpdateStatus(ctx) {
+async function replyWithForcedRaveUpdateStatus(ctx, bot) {
   try {
     await removeOldRaves();
-    await updateRaveContent();
+    await updateRaveContent(bot);
     ctx.reply("Raves mises à jour !");
   } catch (err) {
     console.log(err);
@@ -121,7 +124,9 @@ async function replyWithNextRaveInList(ctx, raveKey = undefined) {
       }* !
   Tarifs encore dispo : 
   ${rave.prices
-        .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+        .map((priceDetails) => `${priceDetails.name.length > maxTarifNameSize ?
+          priceDetails.name.substring(0, maxTarifNameSize - 3) + "..." :
+          priceDetails.name} : ${priceDetails.price}€ \- ${priceDetails.status}`)
         .join("\n")}
   Gens chauds : 
   ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
@@ -163,7 +168,9 @@ Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${rave
       }* !
 Tarifs encore dispo : 
 ${rave.prices
-        .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+        .map((priceDetails) => `${priceDetails.name.length > maxTarifNameSize ?
+          priceDetails.name.substring(0, maxTarifNameSize - 3) + "..." :
+          priceDetails.name} : ${priceDetails.price}€ \- ${priceDetails.status}`)
         .join("\n")}
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
@@ -236,7 +243,9 @@ Rave prévue le *${new Date(rave.startDate).toLocaleString("FR-fr")}* au *${rave
         }* !
 Tarifs encore dispo : 
 ${rave.prices
-          .map((priceDetails) => `${priceDetails.price}€ \- ${priceDetails.status}`)
+          .map((priceDetails) => `${priceDetails.name.length > maxTarifNameSize ?
+            priceDetails.name.substring(0, maxTarifNameSize - 3) + "..." :
+            priceDetails.name} : ${priceDetails.price}€ \- ${priceDetails.status}`)
           .join("\n")}
 Gens chauds : 
 ${rave.attending.map((attender) => `${attender.first_name}`).join("\n")}`,
@@ -375,6 +384,11 @@ async function replyWithNextRaveTimer(ctx) {
   }
 }
 
+function replyWithInformRaveChangeStatus(ctx) {
+  let message = setInformRaveChange() ? "Vous serez notifiés ici d'un changement de tarif sur les raves du /rave !" : "Vous ne serez plus notifiés d'un changement de tarif sur les raves du /rave.";
+  ctx.reply(message);
+}
+
 exports.replyWithNextRaveTimer = replyWithNextRaveTimer
 exports.hiddenReplyWithRaveList = hiddenReplyWithRaveList;
 exports.replyWithRaveList = replyWithRaveList;
@@ -391,3 +405,4 @@ exports.replyWithProut = replyWithProut;
 exports.replyWithUpdatedProutList = replyWithUpdatedProutList;
 exports.hiddenReplyWithProutList = hiddenReplyWithProutList;
 exports.replyWithUpdatedCYTEK = replyWithUpdatedCYTEK;
+exports.replyWithInformRaveChangeStatus = replyWithInformRaveChangeStatus;

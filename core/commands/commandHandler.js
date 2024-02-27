@@ -10,6 +10,7 @@ const {
   replyWithUpdatedProutList,
   updateCYTekStatus,
   replyWithNextRaveTimer,
+  replyWithInformRaveChangeStatus,
   replyWithUpdatedCYTEK
 } = require("./replies");
 const {
@@ -41,10 +42,17 @@ function registerCommands(bot) {
   bot.command("forceUpdateRaves", (ctx) =>
     commandGuard(
       ctx,
-      () => replyWithForcedRaveUpdateStatus(ctx),
+      () => replyWithForcedRaveUpdateStatus(ctx, bot),
       (adminRequired = true)
     )
   );
+  bot.command("subscribeToPriceUpdates", (ctx) =>
+  commandGuard(
+    ctx,
+    () => replyWithInformRaveChangeStatus(ctx),
+    (adminRequired = true)
+  )
+);
   bot.command("grognon", (ctx) =>
     commandGuard(ctx, () =>
       ctx.replyWithPhoto(Input.fromLocalFile("misc/images/grognon.jpg"))

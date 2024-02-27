@@ -3,6 +3,8 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 var raveList = [];
 var raveIndex = 0;
+const maxTarifNameSize = 22;
+var informRaveChange = true;
 
 function getRaveList() {
     return raveList;
@@ -82,7 +84,32 @@ async function requestShotgun(raveKeyURL) {
     return response;
 }
 
-async function updateRaveContent() {
+async function notifyForPriceChange(oldRave, newRave, bot) {
+    let leftTarifications = newRave.prices.filter(offer => oldRave.prices.some(newOffer => newOffer.price != offer.price));
+    if (leftTarifications.length > 0) {
+        let message = `Aïe, on a détecté un changement de tarot : \n\nLes tarifs restants pour l'évent ${oldRave.name} sont :\n`;
+        leftTarifications.forEach(price => {
+            message += `${price.name.length > maxTarifNameSize ?
+                price.name.substring(0, maxTarifNameSize - 3) + "..." :
+                price.name} : ${price.status} - ${price.price}€\n`;
+        });
+        message += `\n\nNe tarde pas à prendre ta place !`;
+        if (informRaveChange) {
+            console.log(bot);
+           await bot.telegram.sendMessage('-1001813348627', message)
+        }
+        else {
+            console.log("InformRaveChange is set to false, not sending message to channel \n\n" + message);
+        }
+    }
+}
+
+function setInformRaveChange() {
+    informRaveChange = !informRaveChange;
+    return informRaveChange;
+}
+
+async function updateRaveContent(bot) {
     await removeOldRaves();
     let raveChanged = false;
     let raves = getRaveList();
@@ -93,6 +120,7 @@ async function updateRaveContent() {
         if (JSON.stringify(shotgunEvent) != JSON.stringify(raves[i])) {
             raves[i] = shotgunEvent;
             raveChanged = true;
+            notifyForPriceChange(raves[i], shotgunEvent, bot);
         }
     }
     if (raveChanged) {
@@ -118,17 +146,6 @@ async function removeSelectedRave(ctx) {
     ctx.reply("Rave non trouvée - NB: vous devez utiliser l'url de la rave pour la supprimer !");
 }
 
-function setGoingStatus(ctx, raveUrl) {
-    for (let i = 0; i < raveList.length; i++) {
-        if (raveList[i].url == raveUrl) {
-            raveList[i].attending = raveList[i].attending.filter(
-                (user) => user.id != ctx.update.message.from.id
-            );
-            writeToRaveFile();
-            return;
-        }
-    }
-}
 
 function getContent(responseData) {
     const $ = cheerio.load(responseData);
@@ -142,10 +159,9 @@ function getContent(responseData) {
 }
 
 function createEvent(shotgunEvent, attendingList = []) {
-    let url  = "https://maps.google.fr"
-    if( shotgunEvent.location.name != null && shotgunEvent.location.geo != null )
-    {
-        url = `https://www.google.com/maps/search/${shotgunEvent.location.name} ${shotgunEvent.location.address}/@${shotgunEvent.location.geo.latitude},${shotgunEvent.location.geo.longitude}`
+    let url = "https://maps.google.fr"
+    if (shotgunEvent.location.name != null && shotgunEvent.location.geo != null) {
+        url = `https://www.google.com/maps/search/${shotgunEvent.location.name} ${shotgunEvent.location.address.streetAddress}/@${shotgunEvent.location.geo.latitude},${shotgunEvent.location.geo.longitude}`
     }
     return {
         name: shotgunEvent.name.replace(/&amp;/g, '&'),
@@ -162,6 +178,7 @@ function createEvent(shotgunEvent, attendingList = []) {
         prices: shotgunEvent.offers.filter(offer => offer.availability != "https://schema.org/SoldOut").map(offer => {
             return {
                 price: offer.price,
+                name: offer.name,
                 status: translateAvailability(offer.availability),
             }
         }
@@ -208,3 +225,4 @@ exports.reloadRaveList = reloadRaveList;
 exports.getRaveList = getRaveList;
 exports.writeToRaveFile = writeToRaveFile;
 exports.updateRaveContent = updateRaveContent;
+exports.setInformRaveChange = setInformRaveChange;
