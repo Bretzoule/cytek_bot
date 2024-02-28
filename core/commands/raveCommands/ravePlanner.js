@@ -5,6 +5,7 @@ var raveList = [];
 var raveIndex = 0;
 const maxTarifNameSize = 22;
 var informRaveChange = true;
+const CYTEKChatID = process.env.CYTEKChatID;
 
 function getRaveList() {
     return raveList;
@@ -96,7 +97,7 @@ async function notifyForPriceChange(oldRave, newRave, bot) {
         message += `\n\nNe tarde pas à prendre ta place !`;
         if (informRaveChange) {
             console.log(bot);
-           await bot.telegram.sendMessage('-1001813348627', message)
+           await bot.telegram.sendMessage(CYTEKChatID, message)
         }
         else {
             console.log("InformRaveChange is set to false, not sending message to channel \n\n" + message);
