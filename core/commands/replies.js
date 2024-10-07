@@ -208,7 +208,7 @@ with Love ❤️, CY TEK
         ...Markup.inlineKeyboard([
           Markup.button.url(
             "🔗 => 💸",
-            "https://www.helloasso.com/associations/cy-tek/adhesions/cotisation-cytek-23-24"
+            "https://www.helloasso.com/associations/cy-tek/adhesions/cotisation-cytek-24-25"
           ),
         ]).resize(),
       }

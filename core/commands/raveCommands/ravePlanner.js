@@ -75,14 +75,28 @@ async function removeOldRaves() {
 
 async function requestShotgun(raveKeyURL) {
     let response = await axios(raveKeyURL);
-    if (response.request.res.responseUrl != raveKeyURL) {
-        let tmpResponse = await axios(response.request.res.responseUrl);
-        newURL = tmpResponse.data.match(/window\.top\.location = (validateProtocol\(("https:\/\/.*?)"{1})/)[0];
-        newURL = newURL.replace("window.top.location = validateProtocol(", "");
-        newURL = newURL.replace(/"/g, "");
-        response = await axios(newURL);
-    }
+    // if (response.request.res.responseUrl != raveKeyURL) {
+    //     let tmpResponse = await axios(response.request.res.responseUrl);
+    //     newURL = tmpResponse.data.match(/window\.top\.location = (validateProtocol\(("https:\/\/.*?)"{1})/)[0];
+    //     newURL = newURL.replace("window.top.location = validateProtocol(", "");
+    //     newURL = newURL.replace(/"/g, "");
+    //     response = await axios(newURL);
+    // }
     return response;
+}
+
+async function requestDice(raveKeyURL) {
+    return await axios(raveKeyURL, {
+        withCredentials: true, headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Cookie': '__cf_bm=aPApYKHyVnY2dAA5FEw8qCdSuRqFhP4rJZL_m7C3tKQ-1709597480-1.0.1.1-BmtLk8QKiCsBUBqm4oaEi7dr0aB2BV8KY.VMnCMF7ueClAS0ezFZedhAHbH28Imc1OKGeuPFpTq682G6brjfmw;cf_clearance:SwEGp2yeaJwaUhgnMnYFh1dxxNVE1XdMmkH5SOYn7wA-1709597481-1.0.1.1-eoP0JrquZXDVfVHL4eHQbnF7.kCLTgrHqN1KafIXVVIkMAiNGanVvHT544whg5GFpKGwGZ8cYzF2UpVdQgFP2w'
+
+        }
+    });
 }
 
 async function notifyForPriceChange(oldRave, newRave, bot) {
@@ -97,7 +111,7 @@ async function notifyForPriceChange(oldRave, newRave, bot) {
         message += `\n\nNe tarde pas à prendre ta place !`;
         if (informRaveChange) {
             console.log(bot);
-           await bot.telegram.sendMessage(CYTEKChatID, message)
+            await bot.telegram.sendMessage(CYTEKChatID, message)
         }
         else {
             console.log("InformRaveChange is set to false, not sending message to channel \n\n" + message);
@@ -112,16 +126,25 @@ function setInformRaveChange() {
 
 async function updateRaveContent(bot) {
     await removeOldRaves();
-    let raveChanged = false;
     let raves = getRaveList();
+    let raveChanged = false;
+    let shotgunRave = false;
     for (let i = 0; i < raves.length; i++) {
-        let response = await requestShotgun(raves[i].url)
-        let content = getContent(response.data);
-        let shotgunEvent = createEvent(content, raves[i].attending);
-        if (JSON.stringify(shotgunEvent) != JSON.stringify(raves[i])) {
-            raves[i] = shotgunEvent;
+        let event = {};
+        if (raves[i].url.startsWith("https://dice.fm")) {
+            let response = await requestDice(raves[i].url)
+            let content = getContent(response.data);
+            event = createDiceEvent(content, raves[i].attending);
+        } else {
+            let response = await requestShotgun(raves[i].url)
+            let content = getContent(response.data);
+            event = createShotgunEvent(content, raves[i].attending);
+            shotgunRave = true;
+        }
+        if (JSON.stringify(event) != JSON.stringify(raves[i])) {
+            raves[i] = event;
             raveChanged = true;
-            notifyForPriceChange(raves[i], shotgunEvent, bot);
+            if (shotgunRave) notifyForPriceChange(raves[i], event, bot);
         }
     }
     if (raveChanged) {
@@ -129,7 +152,6 @@ async function updateRaveContent(bot) {
         await writeToRaveFile();
     }
 }
-
 
 async function removeSelectedRave(ctx) {
     let raveUrl = ctx.update.message.text.split(" ")[1];
@@ -147,7 +169,6 @@ async function removeSelectedRave(ctx) {
     ctx.reply("Rave non trouvée - NB: vous devez utiliser l'url de la rave pour la supprimer !");
 }
 
-
 function getContent(responseData) {
     const $ = cheerio.load(responseData);
     let scriptList = $("script").get();
@@ -159,7 +180,7 @@ function getContent(responseData) {
     return null;
 }
 
-function createEvent(shotgunEvent, attendingList = []) {
+function createShotgunEvent(shotgunEvent, attendingList = []) {
     let url = "https://maps.google.fr"
     if (shotgunEvent.location.name != null && shotgunEvent.location.geo != null) {
         url = `https://www.google.com/maps/search/${shotgunEvent.location.name} ${shotgunEvent.location.address.streetAddress}/@${shotgunEvent.location.geo.latitude},${shotgunEvent.location.geo.longitude}`
@@ -169,7 +190,7 @@ function createEvent(shotgunEvent, attendingList = []) {
         description: shotgunEvent.description.replace(/&amp;/g, '&').substring(0, 100) + "..." ?? "Pas de description",
         startDate: `${shotgunEvent.startDate}`,
         endDate: `${shotgunEvent.endDate}`,
-        image: shotgunEvent.image[0],
+        image: shotgunEvent.image[0] != 'h' ? shotgunEvent.image[0] : shotgunEvent.image,
         url: shotgunEvent.url,
         location: {
             name: shotgunEvent.location.name ?? "Lieu non renseigné",
@@ -188,24 +209,83 @@ function createEvent(shotgunEvent, attendingList = []) {
     }
 }
 
+function createDiceEvent(diceEvent, attendingList = []) {
+    let url = "https://maps.google.fr"
+    if (diceEvent.location.name != null && diceEvent.location.geo != null) {
+        url = `https://www.google.com/maps/search/${diceEvent.location.name} ${diceEvent.location.address}/@${diceEvent.location.geo.latitude},${diceEvent.location.geo.longitude}`
+    }
+    return {
+        name: diceEvent.name.replace(/&amp;/g, '&'),
+        description: diceEvent.description.replace(/&amp;/g, '&').substring(0, 100) + "..." ?? "Pas de description",
+        startDate: `${diceEvent.startDate}`,
+        endDate: `${diceEvent.endDate}`,
+        image: decodeURIComponent(JSON.parse(diceEvent.image[0])),
+        url: decodeURIComponent(JSON.parse(diceEvent.url)),
+        location: {
+            name: diceEvent.location.name ?? "Lieu non renseigné",
+            address: diceEvent.location.address ?? "Lieu non renseigné",
+            url: url
+        },
+        prices: diceEvent.offers.filter(offer => decodeURIComponent(JSON.parse(offer.availability)) != "https://schema.org/SoldOut").map(offer => {
+            return {
+                price: offer.price,
+                name: offer.name,
+                status: translateAvailability(decodeURIComponent(JSON.parse(offer.availability))),
+            }
+        }
+        ),
+        attending: attendingList,
+    }
+}
+
+async function diceRave(raveKeyURL) {
+    if (raveKeyURL == undefined || !raveKeyURL.match("https://dice.fm/event/.*")) {
+        ctx.reply("Vous devez renseigner un lien Dice valide pour ajouter une rave !");
+        throw "Invalid Dice URL";
+    }
+    let response = await requestDice(raveKeyURL);
+    let diceEvent = getContent(response.data);
+    if (diceEvent == null) {
+        ctx.reply("Le lien Dice que vous avez renseigné n'est pas valide !");
+        throw "Invalid Dice URL";
+    }
+    let event = createShotgunEvent(diceEvent);
+    if (raveList.some(existingRave => existingRave.name === event.name)) {
+        ctx.reply("L'évenement existe déjà dans la liste des raves !");
+        throw "Event already exists";
+    }
+    return event;
+}
+
+async function shotgunRave(ctx, raveKeyURL) {
+    if (raveKeyURL == undefined || !raveKeyURL.match("https://[link.]*shotgun.live/.*")) {
+        ctx.reply("Vous devez renseigner un lien Shotgun valide pour ajouter une rave !");
+        throw "Invalid Shotgun URL";
+    }
+    let response = await requestShotgun(raveKeyURL);
+    let shotgunEvent = getContent(response.data);
+    if (shotgunEvent == null) {
+        ctx.reply("Le lien Shotgun que vous avez renseigné n'est pas valide !");
+        throw "Invalid Shotgun URL";
+    }
+    let event = createShotgunEvent(shotgunEvent);
+    if (raveList.some(existingRave => existingRave.name === event.name)) {
+        ctx.reply("L'évenement existe déjà dans la liste des raves !");
+        throw "Event already exists";
+    }
+    return event;
+}
+
 async function updateRaveList(ctx, raveKeyURL, remove) {
     removeOldRaves();
     if (!remove) {
+        let event = {};
         try {
-            if (raveKeyURL == undefined || !raveKeyURL.match("https://[link.]*shotgun.live/.*")) {
-                ctx.reply("Vous devez renseigner un lien Shotgun valide pour ajouter une rave !");
-                throw "Invalid Shotgun URL";
-            }
-            let response = await requestShotgun(raveKeyURL);
-            let shotgunEvent = getContent(response.data);
-            if (shotgunEvent == null) {
-                ctx.reply("Le lien Shotgun que vous avez renseigné n'est pas valide !");
-                throw "Invalid Shotgun URL";
-            }
-            let event = createEvent(shotgunEvent);
-            if (raveList.some(existingRave => existingRave.name === event.name)) {
-                ctx.reply("L'évenement existe déjà dans la liste des raves !");
-                throw "Event already exists";
+            if (raveKeyURL.startsWith("https://dice.fm")) {
+               ctx.reply("L'ajout d'une rave Dice n'est pas supporté, ratio Dice et leur anti-bot :'(")
+               throw "Dice not supported";
+            } else {
+                event = await shotgunRave(ctx,raveKeyURL);
             }
             raveList.push(event);
             await writeToRaveFile();
